@@ -1,0 +1,29 @@
+{
+  "Accounts": [
+    {
+    "AccountId": "259950518779",
+    "AccountArn": "",
+    "AccountEmail": "",
+    "AccountName": "mccloman-3",
+    "Environment": "",
+    "Profile": "",
+    "Regions": [
+      "us-west-2"
+    ],
+    "ServiceId": "",
+    "Status": "ACTIVE",
+    "SpinnakerAssumeRole": "role/spinnakerManaged",
+    "SpinnakerProviders": [
+      "ecs", "lambda", "ec2"
+    ],
+    "SpinnakerEnabled": true,
+    "CreatedAt": "123",
+    "UpdatedAt": "123"
+    }
+  ],
+  "Pagination": {
+    "Limit": "",
+    "NextUrl": "",
+    "CursorState": ""
+  }
+}
