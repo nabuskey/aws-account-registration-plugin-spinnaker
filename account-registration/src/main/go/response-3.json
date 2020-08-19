@@ -1,0 +1,29 @@
+{
+  "Accounts": [
+    {
+    "AccountId": "569729057445",
+    "AccountArn": "",
+    "AccountEmail": "",
+    "AccountName": "hitepari-aws-account",
+    "Environment": "Production",
+    "Profile": "",
+    "Regions": [
+      "us-east-1"
+    ],
+    "ServiceId": "",
+    "Status": "SUSPENDED",
+    "SpinnakerAssumeRole": "role/spinnakerManaged",
+    "SpinnakerProviders": [
+      "ecs", "lambda", "ec2"
+    ],
+    "SpinnakerEnabled": true,
+    "CreatedAt": "20200801090000",
+    "UpdatedAt": "20200819090000"
+    }
+  ],
+  "Pagination": {
+    "Limit": "",
+    "NextUrl": "",
+    "CursorState": ""
+  }
+}
