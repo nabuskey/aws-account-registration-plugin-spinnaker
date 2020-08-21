@@ -35,8 +35,8 @@ RUN mkdir -p /opt/clouddriver/plugins && chown -R spinnaker:nogroup /opt/clouddr
 
 USER spinnaker
 
-COPY response /
-COPY response.json /
+#COPY response /
+#COPY response.json /
 
 COPY spinnaker-aws-account-registration-0.0.1.zip /opt/clouddriver/plugins/
 COPY wrapper.sh /
