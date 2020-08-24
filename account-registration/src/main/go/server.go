@@ -12,7 +12,7 @@ import (
 var accounts = make(map[string]Account)
 
 func hello(w http.ResponseWriter, req *http.Request) {
-	lt := req.URL.Query().Get("after")
+	lt := req.URL.Query().Get("UpdatedAt.gt")
 	var rAccs []Account
 	if lt != "" {
 		givenTime, err := time.Parse(time.RFC3339Nano, lt)
@@ -23,17 +23,22 @@ func hello(w http.ResponseWriter, req *http.Request) {
 			newAccounts := loadJSON()
 			for _, v := range newAccounts.Accounts {
 				accounts[v.AccountName] = v
+				rAccs = append(rAccs, v)
 			}
-			for _, a := range accounts {
-				rAccs = append(rAccs, a)
-			}
+
+			//for _, a := range accounts {
+			//	rAccs = append(rAccs, a)
+			//}
 		}
 	} else {
-		for _, v := range accounts {
+		currentAcounts := loadJSON()
+		for _, v := range currentAcounts.Accounts {
+			accounts[v.AccountName] = v
 			rAccs = append(rAccs, v)
 		}
-
-	}
+		//for _, v := range accounts {
+		//	rAccs = append(rAccs, v)
+			}
 
 	resp := Response{
 		Accounts: rAccs,
@@ -107,7 +112,7 @@ type Permissions struct {
 	EXECUTE []string `json:"EXECUTE"`
 }
 type Response struct {
-	Accounts   []Account `json:"Accounts"`
+	Accounts   []Account `json:"SpinnakerAccounts"`
 	Pagination struct {
 		NextURL string `json:"NextUrl"`
 	} `json:"Pagination"`
