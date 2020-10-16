@@ -1,5 +1,6 @@
 buildscript {
   repositories {
+    mavenLocal()
     mavenCentral()
     maven { url "https://dl.bintray.com/spinnaker/gradle/" }
   }
@@ -7,12 +8,14 @@ buildscript {
     classpath("com.netflix.spinnaker.gradle:spinnaker-extensions:$spinnakerGradleVersion")
   }
 }
-
 plugins {
   id("com.palantir.git-version").version("0.12.2")
 }
 apply plugin: "io.spinnaker.plugin.bundler"
-
+repositories {
+  mavenLocal()
+  mavenCentral()
+}
 spinnakerBundle {
   pluginId = "AWS.AccountRegistration"
   description = "AWS account registration."

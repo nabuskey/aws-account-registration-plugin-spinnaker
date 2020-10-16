@@ -47,7 +47,7 @@ import java.util.*;
 @Data
 public class AccountsStatus {
     public HashMap<String, CredentialsConfig.Account> ec2Accounts;
-    public HashMap<String, ECSCredentialsConfig.Account> ecsAccounts;
+    public HashMap<String, ECSCredentialsConfig.ECSAccount> ecsAccounts;
     public List<String> deletedAccounts;
     private String lastSyncTime;
     private String lastAttemptedTIme;
@@ -80,7 +80,7 @@ public class AccountsStatus {
         return new ArrayList<>(ec2Accounts.values());
     }
 
-    public List<ECSCredentialsConfig.Account> getECSAccountsAsList() {
+    public List<ECSCredentialsConfig.ECSAccount> getECSAccountsAsList() {
         return new ArrayList<>(ecsAccounts.values());
     }
 
@@ -133,7 +133,7 @@ public class AccountsStatus {
     }
 
     private void buildDesiredAccountConfig(HashMap<String, CredentialsConfig.Account> ec2Accounts,
-                                           HashMap<String, ECSCredentialsConfig.Account> ecsAccounts,
+                                           HashMap<String, ECSCredentialsConfig.ECSAccount> ecsAccounts,
                                            List<String> deletedAccounts, List<String> accountsToCheck) {
         // Always use external source as credentials repo's correct state.
         if (credentialsConfig.getAccounts() == null) {
@@ -152,8 +152,8 @@ public class AccountsStatus {
                 ec2Accounts.put(currentAccount.getName(), currentAccount);
             }
         }
-        for (ECSCredentialsConfig.Account currentECSAccount : ecsCredentialsConfig.getAccounts()) {
-            for (ECSCredentialsConfig.Account sourceAccount : ecsAccounts.values()) {
+        for (ECSCredentialsConfig.ECSAccount currentECSAccount : ecsCredentialsConfig.getAccounts()) {
+            for (ECSCredentialsConfig.ECSAccount sourceAccount : ecsAccounts.values()) {
                 if (currentECSAccount.getName().equals(sourceAccount.getName()) || deletedAccounts.contains(currentECSAccount.getAwsAccount())) {
                     log.info("Account info for existing ECS account \"{}\" will be updated.", sourceAccount.getName());
                     currentECSAccount = null;
