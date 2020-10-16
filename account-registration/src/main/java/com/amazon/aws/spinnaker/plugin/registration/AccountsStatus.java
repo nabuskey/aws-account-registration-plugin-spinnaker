@@ -33,6 +33,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -45,6 +46,7 @@ import java.util.*;
 
 @Slf4j
 @Data
+@Component
 public class AccountsStatus {
     public HashMap<String, CredentialsConfig.Account> ec2Accounts;
     public HashMap<String, ECSCredentialsConfig.ECSAccount> ecsAccounts;

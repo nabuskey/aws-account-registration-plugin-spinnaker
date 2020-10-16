@@ -45,7 +45,7 @@ dependencies {
   compileOnly "com.netflix.spinnaker.clouddriver:clouddriver-ecs:${clouddriverVersion}"
   compileOnly "com.netflix.spinnaker.clouddriver:cats-core:${clouddriverVersion}"
   compileOnly "com.netflix.spinnaker.clouddriver:clouddriver-security:${clouddriverVersion}"
-  compileOnly "com.netflix.spinnaker.clouddriver:clouddriver-eureka:${clouddriverVersion}"
+//  compileOnly "com.netflix.spinnaker.clouddriver:clouddriver-eureka:${clouddriverVersion}"
   compileOnly "com.netflix.spinnaker.clouddriver:clouddriver-core:${clouddriverVersion}"
   compileOnly 'com.netflix.spinnaker.fiat:fiat-core:1.22.0'
   compileOnly 'com.amazonaws:aws-java-sdk:1.11.877'
@@ -60,7 +60,7 @@ dependencies {
   testImplementation "com.netflix.spinnaker.clouddriver:clouddriver-ecs:${clouddriverVersion}"
   testImplementation "com.netflix.spinnaker.clouddriver:cats-core:${clouddriverVersion}"
   testImplementation "com.netflix.spinnaker.clouddriver:clouddriver-security:${clouddriverVersion}"
-  testImplementation "com.netflix.spinnaker.clouddriver:clouddriver-eureka:${clouddriverVersion}"
+//  testImplementation "com.netflix.spinnaker.clouddriver:clouddriver-eureka:${clouddriverVersion}"
   testImplementation "com.netflix.spinnaker.clouddriver:clouddriver-core:${clouddriverVersion}"
   testImplementation 'com.netflix.spinnaker.fiat:fiat-core:1.22.0'
   testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.2'

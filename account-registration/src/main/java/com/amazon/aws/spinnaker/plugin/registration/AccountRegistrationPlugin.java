@@ -17,45 +17,23 @@
 
 package com.amazon.aws.spinnaker.plugin.registration;
 
-import com.netflix.spinnaker.kork.plugins.api.spring.PrivilegedSpringPlugin;
+import com.netflix.spinnaker.kork.plugins.api.spring.SpringLoaderPlugin;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.PluginWrapper;
-import org.springframework.beans.factory.BeanDefinitionStoreException;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Slf4j
-public class AccountRegistrationPlugin extends PrivilegedSpringPlugin {
+public class AccountRegistrationPlugin extends SpringLoaderPlugin {
 
     public AccountRegistrationPlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
 
     @Override
-    public void registerBeanDefinitions(BeanDefinitionRegistry registry) {
-        BeanDefinition lazyLoadCredentialsRepositoryDefinition = primaryBeanDefinitionFor(LazyLoadCredentialsRepository.class);
-        try {
-            log.debug("Registering bean: {}", lazyLoadCredentialsRepositoryDefinition.getBeanClassName());
-            registry.registerBeanDefinition("accountCredentialsRepository", lazyLoadCredentialsRepositoryDefinition);
-        } catch (BeanDefinitionStoreException e) {
-            log.error("Could not register bean {}", lazyLoadCredentialsRepositoryDefinition.getBeanClassName());
-        }
-        List<Class> classes = new ArrayList<>(Arrays.asList(AmazonPollingSynchronizer.class,
-                AmazonEC2InfraCachingAgentScheduler.class,
-                AmazonAWSCachingAgentScheduler.class, AmazonECSCachingAgentScheduler.class, AccountsStatus.class));
-        for (Class classToAdd : classes) {
-            BeanDefinition beanDefinition = beanDefinitionFor(classToAdd);
-            try {
-                log.debug("Registering bean: {}", beanDefinition.getBeanClassName());
-                registerBean(beanDefinition, registry);
-            } catch (ClassNotFoundException e) {
-                log.error("Could not register bean {}", beanDefinition.getBeanClassName());
-            }
-        }
+    public List<String> getPackagesToScan() {
+        return Collections.singletonList("com.amazon.aws.spinnaker.plugin.registration");
     }
 
     @Override

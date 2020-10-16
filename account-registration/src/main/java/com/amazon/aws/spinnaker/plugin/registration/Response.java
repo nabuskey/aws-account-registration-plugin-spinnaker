@@ -35,8 +35,7 @@ public class Response {
     Response() {
         this.accounts = new ArrayList<>();
         this.regions = new HashSet<>();
-        List<Region> awsRegions = RegionUtils.getRegions();
-        for (Region awsRegion : awsRegions) {
+        for (Region awsRegion : RegionUtils.getRegions()) {
             regions.add(awsRegion.getName());
         }
     }
