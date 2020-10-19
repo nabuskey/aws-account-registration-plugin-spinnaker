@@ -49,7 +49,7 @@ public class Response {
     @JsonIgnore
     HashMap<String, CredentialsConfig.Account> ec2Accounts;
     @JsonIgnore
-    HashMap<String, ECSCredentialsConfig.ECSAccount> ecsAccounts;
+    HashMap<String, ECSCredentialsConfig.Account> ecsAccounts;
     @JsonIgnore
     List<String> deletedAccounts;
     @JsonIgnore
@@ -58,8 +58,8 @@ public class Response {
     Set<String> regions;
 
 
-    private ECSCredentialsConfig.ECSAccount makeECSAccount(Account account) {
-        return new ECSCredentialsConfig.ECSAccount() {{
+    private ECSCredentialsConfig.Account makeECSAccount(Account account) {
+        return new ECSCredentialsConfig.Account() {{
             setAwsAccount(account.getName());
             setName(account.getName() + "-ecs");
         }};
@@ -88,7 +88,7 @@ public class Response {
 
     public boolean convertCredentials() {
         HashMap<String, CredentialsConfig.Account> ec2Accounts = new HashMap<>();
-        HashMap<String, ECSCredentialsConfig.ECSAccount> ecsAccounts = new HashMap<>();
+        HashMap<String, ECSCredentialsConfig.Account> ecsAccounts = new HashMap<>();
         List<String> deletedAccounts = new ArrayList<>();
         List<String> accountsToCheck = new ArrayList<>();
         for (Account account : accounts) {
@@ -122,7 +122,7 @@ public class Response {
                         continue;
                     case "ecs":
                         log.info("Enabling ECS account for {}", accountName);
-                        ECSCredentialsConfig.ECSAccount ecsAccount = makeECSAccount(account);
+                        ECSCredentialsConfig.Account ecsAccount = makeECSAccount(account);
                         ecsAccounts.put(ecsAccount.getName(), ecsAccount);
                         continue;
                     default:

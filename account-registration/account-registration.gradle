@@ -40,6 +40,7 @@ dependencies {
 //  compileOnly (group: 'com.netflix.spinnaker.orca', name: 'orca-core', version: "${orcaVersion}")
   compileOnly "com.netflix.spinnaker.kork:kork-security:${korkVersion}"
   compileOnly "com.netflix.spinnaker.kork:kork-credentials:${korkVersion}"
+  compileOnly "com.netflix.spinnaker.kork:kork-credentials-api:${korkVersion}"
   compileOnly "com.netflix.spinnaker.clouddriver:clouddriver-api:${clouddriverVersion}"
   compileOnly "com.netflix.spinnaker.clouddriver:clouddriver-aws:${clouddriverVersion}"
   compileOnly "com.netflix.spinnaker.clouddriver:clouddriver-ecs:${clouddriverVersion}"
