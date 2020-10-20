@@ -56,6 +56,10 @@ public class AccountsStatus {
     private boolean iamAuth;
     @Value("${accountProvision.iamAuthRegion:us-west-2}")
     private String region;
+    @Value("${accountProvision.maxBackoffTime:3600000}")
+    private long maxBackoffTime;
+    private int retryCount;
+    private Instant nextTry;
     private RestTemplate restTemplate;
     private final CredentialsConfig credentialsConfig;
     private ECSCredentialsConfig ecsCredentialsConfig;
@@ -85,6 +89,10 @@ public class AccountsStatus {
     }
 
     public boolean getDesiredAccounts() {
+        if (nextTry != null && Instant.now().isBefore(nextTry)) {
+            log.debug("In backoff time. Will not attempt to retrieve accounts.");
+            return false;
+        }
         if (lastSyncTime != null) {
             log.info("Last time synced with remote host is: {}", lastSyncTime);
         } else {
@@ -92,6 +100,8 @@ public class AccountsStatus {
         }
         Response response = getResourceFromRemoteHost(remoteHostUrl);
         if (response == null) {
+            retryCount += 1;
+            setBackoffTime();
             return false;
         }
         String nextUrl = response.getPagination().getNextUrl();
@@ -201,6 +211,8 @@ public class AccountsStatus {
     }
 
     public void markSynced() {
+        this.retryCount = 0;
+        this.nextTry = null;
         this.lastSyncTime = this.lastAttemptedTIme;
     }
 
@@ -212,21 +224,7 @@ public class AccountsStatus {
                 return null;
             }
         }
-        try {
-            return callApiGateway(url);
-        } catch (HttpClientErrorException e) {
-            if (HttpStatus.FORBIDDEN == e.getStatusCode()) {
-                log.error(e.getMessage());
-                log.info("Received 403 from API Gateway. Retrying..");
-                makeHeaderGenerator(url);
-                if (this.headerGenerator == null) {
-                    log.error("Failed to generate resources required for AWS Signature V4 to authenticate with API Gateway.");
-                    return null;
-                }
-                return callApiGateway(url);
-            }
-            throw e;
-        }
+        return callApiGateway(url);
     }
 
     private void makeHeaderGenerator(String url) {
@@ -254,6 +252,30 @@ public class AccountsStatus {
     }
 
     private Response callApiGateway(String url) {
+        int retry = 0;
+        while (retry <= 1) {
+            try{
+                return doCallApiGateway(url);
+            } catch (Exception e) {
+                if (e instanceof HttpClientErrorException) {
+                    HttpClientErrorException ex = (HttpClientErrorException) e;
+                    if (HttpStatus.FORBIDDEN == ex.getStatusCode()) {
+                        log.error(e.getMessage());
+                        log.info("Received 403 from API Gateway.");
+                        makeHeaderGenerator(url);
+                        if (this.headerGenerator == null) {
+                            log.error("Failed to generate resources required for AWS Signature V4 to authenticate with API Gateway.");
+                        }
+                    }
+                }
+                log.error("Error encountered while calling remote host: {}", e.getMessage());
+            }
+            retry += 1;
+        }
+        return null;
+    }
+
+    private Response doCallApiGateway(String url) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url);
         HashMap<String, List<String>> queryStrings = new HashMap<>();
         for (Map.Entry<String, List<String>> entry : builder.build().getQueryParams().entrySet()) {
@@ -306,5 +328,15 @@ public class AccountsStatus {
 
         log.debug("Most recent timestamp is {}", oldest.toString());
         return map.get(oldest);
+    }
+
+    private void setBackoffTime() {
+        long waitTime = (long) Math.pow(2, retryCount) * 1000L;
+        if (waitTime > maxBackoffTime) {
+            waitTime = maxBackoffTime;
+        }
+        Random random = new Random();
+        long randWait = random.nextInt(10) * 100L;
+        nextTry = Instant.now().plusMillis(waitTime - randWait);
     }
 }

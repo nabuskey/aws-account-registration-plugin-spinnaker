@@ -150,7 +150,11 @@ public class AccountsStatusTest {
             setRestTemplate(mockRest);
             setECSCredentialsConfig(ecsCredentialsConfig);
         }};
-        assertFalse(status.getDesiredAccounts());
+        assertAll("No account should be returned",
+                () -> assertFalse(status.getDesiredAccounts()),
+                () -> assertEquals(status.getRetryCount(), 1),
+                () -> assertNotNull(status.getNextTry())
+        );
 
         Mockito.when(mockRest.getForObject(Mockito.eq("http://localhost:8080/hello/"), Mockito.eq(Response.class)))
                 .thenReturn(response);

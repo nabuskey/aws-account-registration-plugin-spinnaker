@@ -43,7 +43,6 @@ class LazyLoadCredentialsRepository extends MapBackedAccountCredentialsRepositor
             synchronizer.sync();
             cred = super.getOne(key);
             if (cred != null) {
-                save(key, cred);
                 return cred;
             }
             log.error("Could not find account, {}, in remote repository.", key);
@@ -51,5 +50,3 @@ class LazyLoadCredentialsRepository extends MapBackedAccountCredentialsRepositor
         return cred;
     }
 }
-
-
