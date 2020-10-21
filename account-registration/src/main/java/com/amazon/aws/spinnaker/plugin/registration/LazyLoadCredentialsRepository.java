@@ -45,7 +45,7 @@ class LazyLoadCredentialsRepository extends MapBackedAccountCredentialsRepositor
             if (cred != null) {
                 return cred;
             }
-            log.error("Could not find account, {}, in remote repository.", key);
+            log.info("Could not find account, {}, in remote repository.", key);
         }
         return cred;
     }

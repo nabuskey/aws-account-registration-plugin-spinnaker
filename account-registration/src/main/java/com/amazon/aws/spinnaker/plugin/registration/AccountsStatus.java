@@ -37,11 +37,13 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @Data
@@ -58,7 +60,11 @@ public class AccountsStatus {
     private String region;
     @Value("${accountProvision.maxBackoffTime:3600000}")
     private long maxBackoffTime;
-    private int retryCount;
+    @Value("${accountProvision.connectionTimeout:2000")
+    private long connectionTimeout;
+    @Value("${accountProvision.readTimeout:6000")
+    private long readTimeout;
+    private AtomicInteger retryCount;
     private Instant nextTry;
     private RestTemplate restTemplate;
     private final CredentialsConfig credentialsConfig;
@@ -72,7 +78,12 @@ public class AccountsStatus {
     ) {
         this.credentialsConfig = credentialsConfig;
         this.remoteHostUrl = url;
-        this.restTemplate = new RestTemplateBuilder().interceptors(new PlusEncoderInterceptor()).build();
+        this.restTemplate = new RestTemplateBuilder()
+                .interceptors(new PlusEncoderInterceptor())
+                .setConnectTimeout(Duration.ofMillis(connectionTimeout))
+                .setReadTimeout(Duration.ofMillis(readTimeout))
+                .build();
+        this.retryCount.set(0);
     }
 
     @Autowired(required = false)
@@ -100,7 +111,6 @@ public class AccountsStatus {
         }
         Response response = getResourceFromRemoteHost(remoteHostUrl);
         if (response == null) {
-            retryCount += 1;
             setBackoffTime();
             return false;
         }
@@ -211,7 +221,7 @@ public class AccountsStatus {
     }
 
     public void markSynced() {
-        this.retryCount = 0;
+        this.retryCount.set(0);
         this.nextTry = null;
         this.lastSyncTime = this.lastAttemptedTIme;
     }
@@ -305,7 +315,7 @@ public class AccountsStatus {
     }
 
     private String findMostRecentTime(Response response) {
-        List<Instant> instants = new ArrayList();
+        List<Instant> instants = new ArrayList<>();
         HashMap<Instant, String> map = new HashMap<>();
         DateTimeFormatter timeFormatter = DateTimeFormatter.ISO_DATE_TIME;
         for (Account account : response.getAccounts()) {
@@ -331,7 +341,8 @@ public class AccountsStatus {
     }
 
     private void setBackoffTime() {
-        long waitTime = (long) Math.pow(2, retryCount) * 1000L;
+        int count = retryCount.getAndIncrement();
+        long waitTime = (long) Math.pow(2, count) * 1000L;
         if (waitTime > maxBackoffTime) {
             waitTime = maxBackoffTime;
         }
