@@ -60,11 +60,7 @@ public class AccountsStatus {
     private String region;
     @Value("${accountProvision.maxBackoffTime:3600000}")
     private long maxBackoffTime;
-    @Value("${accountProvision.connectionTimeout:2000")
-    private long connectionTimeout;
-    @Value("${accountProvision.readTimeout:6000")
-    private long readTimeout;
-    private AtomicInteger retryCount;
+    private AtomicInteger retryCount = new AtomicInteger(0);
     private Instant nextTry;
     private RestTemplate restTemplate;
     private final CredentialsConfig credentialsConfig;
@@ -74,16 +70,17 @@ public class AccountsStatus {
     @Autowired
     AccountsStatus(
             CredentialsConfig credentialsConfig,
-            @Value("${accountProvision.url:http://localhost:8080}") String url
+            @Value("${accountProvision.url:http://localhost:8080}") String url,
+            @Value("${accountProvision.connectionTimeout:2000}") Long connectionTimeout,
+            @Value("${accountProvision.readTimeout:6000}") Long readTimeout
     ) {
         this.credentialsConfig = credentialsConfig;
         this.remoteHostUrl = url;
         this.restTemplate = new RestTemplateBuilder()
                 .interceptors(new PlusEncoderInterceptor())
                 .setConnectTimeout(Duration.ofMillis(connectionTimeout))
-                .setReadTimeout(Duration.ofMillis(readTimeout))
+                .setReadTimeout(Duration.ofMillis(connectionTimeout))
                 .build();
-        this.retryCount.set(0);
     }
 
     @Autowired(required = false)
@@ -109,13 +106,20 @@ public class AccountsStatus {
         } else {
             log.info("Last sync time is not set. Will perform a full sync.");
         }
-        Response response = getResourceFromRemoteHost(remoteHostUrl);
+        Response response = null;
+        try {
+            response = getResourceFromRemoteHost(remoteHostUrl);
+        } catch (Exception e) {
+            log.error("Could not get account information from remote host.", e);
+            setBackoffTime();
+            return false;
+        }
         if (response == null) {
             setBackoffTime();
             return false;
         }
-        String nextUrl = response.getPagination().getNextUrl();
-        if (!"".equals(nextUrl)) {
+        if (response.getPagination() != null && !"".equals(response.getPagination().getNextUrl())) {
+            String nextUrl = response.getPagination().getNextUrl();
             List<Account> accounts = response.getAccounts();
             while (nextUrl != null && !"".equals(nextUrl)) {
                 log.info("Calling next URL, {}", nextUrl);
@@ -214,7 +218,8 @@ public class AccountsStatus {
         }
         if (response.getAccounts() == null || response.getAccounts().isEmpty()) {
             log.info("No accounts returned from remote host.");
-            return null;
+            response.setAccounts(Collections.emptyList());
+            return response;
         }
         log.info("Received a valid response from remote host.");
         return response;
@@ -349,5 +354,6 @@ public class AccountsStatus {
         Random random = new Random();
         long randWait = random.nextInt(10) * 100L;
         nextTry = Instant.now().plusMillis(waitTime - randWait);
+        log.info("Next try: {}", nextTry.toString());
     }
 }

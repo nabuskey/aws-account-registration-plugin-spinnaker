@@ -42,6 +42,7 @@ dependencies {
   compileOnly "com.netflix.spinnaker.clouddriver:clouddriver-api:${clouddriverVersion}"
   compileOnly "com.netflix.spinnaker.clouddriver:clouddriver-aws:${clouddriverVersion}"
   compileOnly "com.netflix.spinnaker.clouddriver:clouddriver-ecs:${clouddriverVersion}"
+  compileOnly "com.netflix.spinnaker.clouddriver:clouddriver-lambda:${clouddriverVersion}"
   compileOnly "com.netflix.spinnaker.clouddriver:cats-core:${clouddriverVersion}"
   compileOnly "com.netflix.spinnaker.clouddriver:clouddriver-security:${clouddriverVersion}"
   compileOnly "com.netflix.spinnaker.clouddriver:clouddriver-eureka:${clouddriverVersion}"
